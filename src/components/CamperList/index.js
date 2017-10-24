@@ -3,14 +3,19 @@ import { Button, Container, Divider, Grid, Header, Icon, Image, Table, List, Men
 
 
 class CamperList extends Component {
-  state = { camperList: []}
+  state = { camperList: [], sortBy: 'username', desc:1}
   async componentDidMount () {
     const myFetch = await fetch('https://fcctop100.herokuapp.com/api/fccusers/top/recent')
     const camperList = await myFetch.json()
     this.setState({camperList: camperList.sort((camperA, camperB) => {
       return camperA.alltime > camperB.alltime ? -1 : +1
-    })})
+    }).reverse()})
     console.log({camperList})
+  }
+
+   handleHeader = (sortby) =>{
+    this.setState({desc:this.state.desc*-1})
+
   }
 
   /* sample results
@@ -22,19 +27,21 @@ class CamperList extends Component {
    */
 
   render() {
-    const { camperList } = this.state
+    const { camperList, sortBy, desc } = this.state
     return  (
       <Table basic='very' celled collapsing>
         <Table.Header>
           <Table.Row>
-            <Table.HeaderCell>Employee</Table.HeaderCell>
-            <Table.HeaderCell>Correct Guesses</Table.HeaderCell>
+            <Table.HeaderCell onClick = {()=> this.handleHeader('username')}>Employee</Table.HeaderCell>
+            <Table.HeaderCell onClick = {()=> this.setState({ sortBy:'alltime', desc:desc*-1})}>Correct Guesses</Table.HeaderCell>
           </Table.Row>
         </Table.Header>
 
         <Table.Body>
 
-          { camperList.map((camper) => {
+          { camperList.sort((camperA, camperB) => {
+            return camperA[sortBy] > camperB[sortBy] ? -1*desc : 1*desc
+          }).map((camper) => {
            return (
              <Table.Row key={camper.username}>
               <Table.Cell>
